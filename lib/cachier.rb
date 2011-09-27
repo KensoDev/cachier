@@ -102,8 +102,6 @@ module Cachier
     def add_tags_to_tag_list(*tags)
       cachier_tags = get_cachier_tags
 
-      puts "adding the cache tags #{tags.to_s}, #{tags.class.name}" 
-
       cachier_tags = (cachier_tags + tags).uniq
       write_cachier_tags(cachier_tags)
     end
@@ -114,8 +112,6 @@ module Cachier
 
     def remove_tags_from_tag_list(*tags)
       cachier_tags = get_cachier_tags
-
-      puts "removing the cache tags #{tags.to_s}, #{tags.class.name}"
 
       cachier_tags = (cachier_tags - tags).uniq
       write_cachier_tags(cachier_tags)
