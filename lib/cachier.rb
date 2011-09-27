@@ -90,7 +90,7 @@ module Cachier
 
   def keys
     tags.inject([]) do |arry, tag|
-      arry += Rails.cache.fetch(tag)
+      arry += (Rails.cache.fetch(tag) || [])
     end.compact
   end
 
