@@ -10,7 +10,15 @@ module Cachier
   
   # Fetch something from cache and tagit
   def fetch_from_cache(cache_key, cached_object, cache_params = {})
-    
+    tags = cache_params.delete(:tag) || []
+
+    add_tags_to_tag_list(*tags) if tags.length > 0
+
+    returned_object = Rails.cache.fetch(cache_key, cache_params) {
+      cached_object
+    }
+
+    returned_object
   end
 
   def store_fragment(fragment, *tags)
@@ -23,10 +31,7 @@ module Cachier
     end
 
     # now store the tag for book keeping
-    cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
-    cachier_tags = (cachier_tags + tags).uniq
-
-    Rails.cache.write(CACHE_KEY, cachier_tags)
+    add_tags_to_tag_list(tags)
   end
 
   def expire(*tags)
@@ -44,10 +49,7 @@ module Cachier
 
     # now remove them from the list
     # of stored tags
-    cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
-    cachier_tags = (cachier_tags - tags).uniq
-
-    Rails.cache.write(CACHE_KEY, cachier_tags)
+    remove_tags_from_tag_list(tags)
   end
 
   def tags
@@ -72,6 +74,28 @@ module Cachier
   def keys_for(tag)
     Rails.cache.fetch(tag) || []
   end
+
+  private
+    def add_tags_to_tag_list(tags)
+      cachier_tags = get_cachier_tags
+      cachier_tags = (cachier_tags + tags).uniq
+      write_cachier_tags(cachier_tags)
+    end
+
+    def write_cachier_tags(cachier_tags)
+      Rails.cache.write(CACHE_KEY, cachier_tags)
+    end
+
+    def remove_tags_from_tag_list(tags)
+      cachier_tags = get_cachier_tags
+      cachier_tags = (cachier_tags - tags).uniq
+      write_cachier_tags(cachier_tags)
+    end
+
+    def get_cachier_tags
+      cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
+      cachier_tags
+    end
 end
 
 require 'cachier/controller_helper'
