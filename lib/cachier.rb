@@ -23,9 +23,10 @@ module Cachier
     end
 
     # now store the tag for book keeping
-    Cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
-    Cachier_tags = (Cachier_tags + tags).uniq
-    Rails.cache.write(CACHE_KEY, Cachier_tags)
+    cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
+    cachier_tags = (cachier_tags + tags).uniq
+
+    Rails.cache.write(CACHE_KEY, cachier_tags)
   end
 
   def expire(*tags)
@@ -43,9 +44,10 @@ module Cachier
 
     # now remove them from the list
     # of stored tags
-    Cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
-    Cachier_tags = (Cachier_tags - tags).uniq
-    Rails.cache.write(CACHE_KEY, Cachier_tags)
+    cachier_tags = Rails.cache.fetch(CACHE_KEY) || []
+    cachier_tags = (cachier_tags - tags).uniq
+
+    Rails.cache.write(CACHE_KEY, cachier_tags)
   end
 
   def tags
