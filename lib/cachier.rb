@@ -8,11 +8,11 @@ module Cachier
     ::ApplicationController.perform_caching
   end
   
-  # Fetch something from cache and tagit
+  # Fetch something from cache and tag it
   def fetch_from_cache(cache_key, cached_object, cache_params = {})
     tags = cache_params.delete(:tag) || []
 
-    add_tags_to_tag_list(*tags) if tags.length > 0
+    add_tags_to_tag_list(tags) if tags.length > 0
 
     returned_object = Rails.cache.fetch(cache_key, cache_params) {
       cached_object
@@ -76,7 +76,7 @@ module Cachier
   end
 
   private
-    def add_tags_to_tag_list(tags)
+    def add_tags_to_tag_list(*tags)
       cachier_tags = get_cachier_tags
       cachier_tags = (cachier_tags + tags).uniq
       write_cachier_tags(cachier_tags)
@@ -86,7 +86,7 @@ module Cachier
       Rails.cache.write(CACHE_KEY, cachier_tags)
     end
 
-    def remove_tags_from_tag_list(tags)
+    def remove_tags_from_tag_list(*tags)
       cachier_tags = get_cachier_tags
       cachier_tags = (cachier_tags - tags).uniq
       write_cachier_tags(cachier_tags)
