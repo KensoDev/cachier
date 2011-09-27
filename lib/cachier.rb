@@ -2,7 +2,7 @@
 module Cachier
   extend self
 
-  CACHE_KEY = 'Cachier-tags'
+  CACHE_KEY = 'cachier-tags'
 
   def perform_caching?
     ::ApplicationController.perform_caching
@@ -12,6 +12,7 @@ module Cachier
   def fetch(cache_key, cache_params = {})
     tags = cache_params.delete(:tag) || []
     add_tags_to_tag_list(tags)
+    store_fragment(cache_key, tags)
 
     if block_given?
       returned_object = Rails.cache.fetch(cache_key, cache_params) {
@@ -25,14 +26,22 @@ module Cachier
   # Fetch something from cache and tag it
   def fetch_from_cache(cache_key, cached_object, cache_params = {})
     tags = cache_params.delete(:tag) || []
-
-    add_tags_to_tag_list(tags) if tags.length > 0
+    add_tags_to_tag_list(tags)
+    store_fragment(cache_key, tags)
 
     returned_object = Rails.cache.fetch(cache_key, cache_params) {
       cached_object
     }
 
     returned_object
+  end
+
+  def add_object_to_tags(*tags, cached_object)
+    tags.each do |tag|
+      # store the fragment
+      fragments = Rails.cache.fetch(tag) || []
+      Rails.cache.write(tag, fragments + [fragment])
+    end
   end
 
   def store_fragment(fragment, *tags)
@@ -92,6 +101,9 @@ module Cachier
   private
     def add_tags_to_tag_list(*tags)
       cachier_tags = get_cachier_tags
+
+      puts "adding the cache tags #{tags.to_s}, #{tags.class.name}" 
+
       cachier_tags = (cachier_tags + tags).uniq
       write_cachier_tags(cachier_tags)
     end
@@ -102,6 +114,9 @@ module Cachier
 
     def remove_tags_from_tag_list(*tags)
       cachier_tags = get_cachier_tags
+
+      puts "removing the cache tags #{tags.to_s}, #{tags.class.name}"
+
       cachier_tags = (cachier_tags - tags).uniq
       write_cachier_tags(cachier_tags)
     end
