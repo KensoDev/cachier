@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.email         = 'avi@kensodev.com'
   s.summary       = 'Tagging ability for your cache keys, based on Redis'
   s.description   = 'Tag your cache keys smartly, you can expire by tags, count keys per tag and many more. based on Redis'
-  s.hompage       = 'https://github.com/KensoDev/cachier'
+  s.homepage       = 'https://github.com/KensoDev/cachier'
 
   s.files         = Dir.glob('lib/**/*.rb')
   s.test_files    = Dir.glob('spec/**/*.rb')
