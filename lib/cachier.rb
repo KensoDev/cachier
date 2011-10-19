@@ -11,7 +11,6 @@ module Cachier
   # Fetch from cache, this function accepts a block
   def fetch(cache_key, cache_params = {})
     tags = cache_params.delete(:tag) || []
-    add_tags_to_tag_list(tags)
     store_fragment(cache_key, tags)
 
     if block_given?
@@ -22,38 +21,15 @@ module Cachier
       Rails.cache.read(cache_key)
     end
   end
-  
-  # Fetch something from cache and tag it
-  def fetch_from_cache(cache_key, cached_object, cache_params = {})
-    tags = cache_params.delete(:tag) || []
-    add_tags_to_tag_list(tags)
-    store_fragment(cache_key, tags)
-
-    returned_object = Rails.cache.fetch(cache_key, cache_params) {
-      cached_object
-    }
-
-    returned_object
-  end
-
-  def add_object_to_tags(*tags, cached_object)
-    tags.each do |tag|
-      # store the fragment
-      fragments = Rails.cache.fetch(tag) || []
-      Rails.cache.write(tag, fragments + [fragment])
-    end
-  end
 
   def store_fragment(fragment, *tags)
     return unless perform_caching?
 
     tags.each do |tag|
-      # store the fragment
       fragments = Rails.cache.fetch(tag) || []
       Rails.cache.write(tag, fragments + [fragment])
     end
 
-    # now store the tag for book keeping
     add_tags_to_tag_list(tags)
   end
 
@@ -67,6 +43,7 @@ module Cachier
           Rails.cache.delete(fragment_key)
         end
       end
+      
       Rails.cache.delete(tag)
     end
 
